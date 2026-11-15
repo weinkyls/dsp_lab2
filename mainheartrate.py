@@ -14,7 +14,7 @@ def prefilter(ecg):
 # Template: one heartbeat from another team's ECG (team 35)
 ecg35 = prefilter(np.loadtxt('Noisy_ECG_1000Hz_35.dat'))
 r35 = 6707                      # R peak of one clean heartbeat (found from plot)
-pre, post = int(0.25 * fs), int(0.45 * fs)
+pre, post = int(0.2 * fs), int(0.4 * fs)   # 600 ms: one P-QRS-T, shorter than one RR interval
 template = ecg35[r35 - pre:r35 + post]
 template = template - np.mean(template)   # make the template DC free
 
@@ -58,25 +58,32 @@ plt.plot(np.arange(-pre, post) / fs * 1000, template)
 plt.title("Matched filter template (one heartbeat from team 35)")
 plt.xlabel("Time relative to R peak (ms)")
 plt.ylabel("Amplitude (a.u.)")
+for name, ms in [("P", -150), ("QRS", 0), ("T", 180)]:
+    i = pre + int(ms / 1000 * fs)
+    plt.annotate(name, (ms, template[i]), xytext=(ms, template[i] + 0.15), ha='center',
+                 arrowprops=dict(arrowstyle='->'))
+plt.ylim(-0.2, 1)
 plt.tight_layout()
 plt.savefig("task5_template.svg")
 
 plt.figure(figsize=(10, 6))
 plt.subplot(2, 1, 1)
 plt.plot(t, det, linewidth=0.6)
-plt.axhline(threshold, color='r', linestyle='--', label='Threshold')
+plt.axhline(threshold, color='r', linestyle='--', label=f'Threshold = {threshold}')
 plt.plot(r_peaks / fs, det[r_peaks], 'rx', label='Detections')
 plt.title("Squared matched filter output")
 plt.xlabel("Time (s)")
 plt.ylabel("Amplitude$^2$ (a.u.)")
-plt.legend(loc='lower right')
+plt.ylim(0, 170)
+plt.legend(loc='upper right')
 plt.subplot(2, 1, 2)
 plt.plot(t, ecg, linewidth=0.6)
 plt.plot(t[r_ecg], ecg[r_ecg], 'rx', label='R peaks (shifted back by matched filter delay)')
 plt.title("Filtered ECG with detected R peaks")
+plt.ylim(-0.3, 1.1)
 plt.xlabel("Time (s)")
 plt.ylabel("Amplitude (a.u.)")
-plt.legend(loc='lower right')
+plt.legend(loc='upper right')
 plt.tight_layout()
 plt.savefig("task5_detection.svg")
 
