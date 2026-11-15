@@ -1,4 +1,3 @@
-# from mytask1.py
 import numpy as np
 import matplotlib.pyplot as plt
 from firdesign import design_fir
@@ -9,36 +8,56 @@ ecg = np.loadtxt('Noisy_ECG_1000Hz_36.dat')
 N = len(ecg)
 t = np.arange(N) / fs
 
-# 绘制时域图
+# ---------- Task 1 ----------
+# time domain plot
 plt.figure(figsize=(10, 4))
 plt.plot(t, ecg, linewidth=0.6)
 plt.title("Noisy ECG - time domain")
 plt.xlabel("Time (s)")
-plt.ylabel("Amplitude")
+plt.ylabel("Amplitude (a.u.)")
 plt.savefig("task1_time.svg")
 
-# 绘制频域图
-X = np.abs(np.fft.fft(ecg))/ N
+# zoom: one heartbeat
+plt.figure(figsize=(10, 4))
+plt.plot(t, ecg, linewidth=0.8)
+plt.xlim(2, 3.5)
+plt.title("Noisy ECG - zoom on one heartbeat")
+plt.xlabel("Time (s)")
+plt.ylabel("Amplitude (a.u.)")
+plt.annotate("R peak", xy=(2.32, 0.89), xytext=(2.5, 0.75), arrowprops=dict(arrowstyle="->"))  # annotation
+plt.annotate("50 Hz interference hides P and T waves", xy=(2.7, 0.2), xytext=(2.6, 0.5), arrowprops=dict(arrowstyle="->"))  # annotation
+plt.savefig("task1_time_zoom.svg")
+
+# frequency domain plot
+X = np.abs(np.fft.fft(ecg)) / N
 f = np.arange(N) * fs / N
 plt.figure(figsize=(15, 4))
 plt.plot(f[:N//2], X[:N//2], linewidth=0.6)
 plt.title("Noisy ECG - frequency domain")
 plt.xlabel("Frequency (Hz)")
-plt.ylabel("Magnitude")
+plt.ylabel("|X(f)| (a.u.)")
+plt.annotate("50 Hz mains interference", xy=(50, 0.075), xytext=(100, 0.06), arrowprops=dict(arrowstyle="->"))  # annotation
 plt.savefig("task1_freq.svg")
-plt.show()
 
-fs = 1000
+# zoom: low frequencies
+plt.figure(figsize=(10, 4))
+plt.plot(f[:N//2], X[:N//2], linewidth=0.8)
+plt.xlim(0, 8)
+plt.ylim(0, 0.03)
+plt.axvline(0.5, color="r", linestyle="--", label="cut-off 0.5 Hz")  # annotation
+plt.title("Spectrum - zoom 0 to 8 Hz")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("|X(f)| (a.u.)")
+plt.annotate("baseline / DC", xy=(0.1, 0.012), xytext=(0.6, 0.02), arrowprops=dict(arrowstyle="->"))  # annotation
+plt.annotate("heart rate 1.43 Hz", xy=(1.43, 0.027), xytext=(2.0, 0.026), arrowprops=dict(arrowstyle="->"))
+plt.annotate("harmonics", xy=(2.87, 0.008), xytext=(3.5, 0.018), arrowprops=dict(arrowstyle="->"))
+plt.legend()
+plt.savefig("task1_freq_zoom.svg")
+
+# ---------- Task 2 ----------
 h = design_fir(fs, [[0, 0.5], [49, 51]])
 M = len(h)
 print("Number of coefficients:", M)
-
-# plt.figure(figsize=(10, 4))
-# plt.plot(h, linewidth=0.6)
-# plt.title("FIR coefficients (impulse response)")
-# plt.xlabel("Tap index n")
-# plt.ylabel("h[n]")
-# plt.savefig("task2_coefficients.svg")
 
 # check the design: response should be 0 at DC and 50 Hz, 1 elsewhere
 H = np.abs(np.fft.fft(h))
@@ -48,10 +67,10 @@ plt.plot(f[:M // 2], H[:M // 2])
 plt.xlim(0, 100)
 plt.title("Frequency response of the FIR filter")
 plt.xlabel("Frequency (Hz)")
-plt.ylabel("|H(f)|")
+plt.ylabel("Gain |H(f)|")
+plt.annotate("DC / baseline removed (0-0.5 Hz)", xy=(0.5, 0.2), xytext=(8, 0.4), arrowprops=dict(arrowstyle="->"))  # annotation
+plt.annotate("50 Hz removed (49-51 Hz)", xy=(50, 0.05), xytext=(60, 0.4), arrowprops=dict(arrowstyle="->"))  # annotation
 plt.savefig("task2_response.svg")
-
-plt.show()
 
 # for task 3
 zoom_start = 5.0
