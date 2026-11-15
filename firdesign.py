@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def design_fir(fs, bands):
     # resolution must fit the narrowest band and the lowest band edge
