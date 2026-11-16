@@ -101,8 +101,11 @@ zoom_end_index = zoom_start_index + int(zoom_duration * fs)
 # single heartbeat
 plt.figure(figsize=(10, 4))
 plt.plot(t[zoom_start_index:zoom_end_index], ecg_filtered[zoom_start_index:zoom_end_index])
+tick_spacing = 0.05
+plt.xticks(np.arange(zoom_start, zoom_start + zoom_duration + tick_spacing / 2, tick_spacing))
+plt.grid(True)
 # PQRST
-wave_labels = [("P", 5.27, 0.15), ("Q", 5.387, -0.12), ("R", 5.427, 0.1), ("S", 5.482, -0.12), ("T", 5.61, 0.15)]
+wave_labels = [("P(5.27)", 5.27, 0.15), ("Q (5.387)", 5.387, -0.12), ("R (5.427)", 5.427, 0.1), ("S (5.482)", 5.482, -0.12), ("T (5.61)", 5.61, 0.15)]
 for wave_name, wave_time, label_offset in wave_labels:
     wave_index = int(wave_time * fs)
     wave_amplitude = ecg_filtered[wave_index]
