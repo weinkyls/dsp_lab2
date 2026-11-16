@@ -18,12 +18,17 @@ ntaps = 100
 learning_rate = 0.001
 fnoise = 50
 lms_filter = FIRfilter(np.zeros(ntaps))
+dc_ntaps = 1 # only 1 tap needed for dc
+dc_learning_rate = 0.003
+dc_noise = 1.0 # noise ref for dc
+dc_lms_filter = FIRfilter(np.zeros(dc_ntaps))
 ecg_lms = np.zeros(N)
 
 for sample_index in range(N):
     ecg_filtered[sample_index] = ecg_filter.dofilter(ecg[sample_index])
     noise = np.sin(2.0 * np.pi * fnoise / fs * sample_index)
-    ecg_lms[sample_index] = lms_filter.doFilterAdaptive(ecg[sample_index], noise, learning_rate)
+    ecg_rm_50hz = lms_filter.doFilterAdaptive(ecg[sample_index], noise, learning_rate)
+    ecg_lms[sample_index] = dc_lms_filter.doFilterAdaptive(ecg_rm_50hz, dc_noise, dc_learning_rate)
 
 # Time domain comparison
 plt.figure(figsize=(10, 6))
