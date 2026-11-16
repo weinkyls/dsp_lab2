@@ -4,8 +4,8 @@ import numpy as np
 class FIRfilter:
     def __init__(self,coefficients):
         self.ntaps=len(coefficients)
-        self.h_reversed = np.asarray(coefficients, dtype=float)[::-1].copy()
-        self.buffer=np.zeros(self.ntaps)
+        self.h_reversed = np.asarray(coefficients, dtype=float)[::-1].copy() # array of coefficients
+        self.buffer=np.zeros(self.ntaps) # empty array for samples
         self.write_index = 0
 
     def dofilter(self,v):
