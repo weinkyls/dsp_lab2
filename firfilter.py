@@ -10,10 +10,10 @@ class FIRfilter:
 
     def dofilter(self,v):
         self.buffer[self.write_index] = v
-        self.write_index = (self.write_index+1) % self.ntaps # update index
+        self.write_index = (self.write_index+1) % self.ntaps # update index for ring buffer
 
-        oldest_len = self.ntaps - self.write_index
-        y = np.dot(self.h_reversed[:oldest_len], self.buffer[self.write_index:]) + np.dot(self.h_reversed[oldest_len:], self.buffer[:self.write_index])
+        old_len = self.ntaps - self.write_index
+        y = np.dot(self.h_reversed[:old_len], self.buffer[self.write_index:]) + np.dot(self.h_reversed[old_len:], self.buffer[:self.write_index])
         return y
 
 # Adaptive LMS filtering
