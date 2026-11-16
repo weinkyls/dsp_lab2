@@ -1,1 +1,7 @@
 .venv/
+.win_venv/
+task5_detection.svg
+task5_heartrate.svg
+task5_template.svg
+task3_heartbeat.svg
+task3_filtered.svg
