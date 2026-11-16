@@ -81,25 +81,58 @@ ecg_filtered = np.zeros(N)
 for sample_index in range(N):
     ecg_filtered[sample_index] = ecg_filter.dofilter(ecg[sample_index])
 
+# filtered ecg
 plt.figure(figsize=(10, 6))
 plt.subplot(2, 1, 1)
 plt.plot(t, ecg, linewidth=0.6)
 plt.title("Raw ECG")
-plt.ylabel("Amplitude")
+plt.ylabel("Amplitude (a.u.)")
 plt.subplot(2, 1, 2)
 plt.plot(t, ecg_filtered, linewidth=0.6)
 plt.title("FIR filtered ECG")
 plt.xlabel("Time (s)")
-plt.ylabel("Amplitude")
+plt.ylabel("Amplitude (a.u.)")
 plt.tight_layout()
 plt.savefig("task3_filtered.svg")
 
 zoom_start_index = int(zoom_start * fs)
 zoom_end_index = zoom_start_index + int(zoom_duration * fs)
+
+# single heartbeat
 plt.figure(figsize=(10, 4))
 plt.plot(t[zoom_start_index:zoom_end_index], ecg_filtered[zoom_start_index:zoom_end_index])
-plt.title("One heartbeat after FIR filtering")
+# PQRST
+wave_labels = [("P", 5.27, 0.15), ("Q", 5.387, -0.12), ("R", 5.427, 0.1), ("S", 5.482, -0.12), ("T", 5.61, 0.15)]
+for wave_name, wave_time, label_offset in wave_labels:
+    wave_index = int(wave_time * fs)
+    wave_amplitude = ecg_filtered[wave_index]
+    plt.annotate(wave_name, xy=(wave_time, wave_amplitude), xytext=(wave_time, wave_amplitude + label_offset), ha="center", arrowprops=dict(arrowstyle="->"))
+plt.ylim(-0.3, 0.9)
+plt.title("Filtered ECG: single heartbeat")
 plt.xlabel("Time (s)")
-plt.ylabel("Amplitude")
+plt.ylabel("Amplitude (a.u.)")
+plt.tight_layout()
 plt.savefig("task3_heartbeat.svg")
+
+X_filtered = np.abs(np.fft.fft(ecg_filtered)) / N
+f_ecg = np.arange(N) * fs / N
+max_freq = 60
+
+# freq spectrum before and after FIR filter
+plt.figure(figsize=(10, 6))
+plt.subplot(2, 1, 1)
+plt.plot(f_ecg[:N // 2], X[:N // 2], linewidth=0.6)
+plt.xlim(0, max_freq)
+spectrum_ylim = plt.ylim()
+plt.title("Raw ECG - frequency domain")
+plt.ylabel("|X(f)| (a.u.)")
+plt.subplot(2, 1, 2)
+plt.plot(f_ecg[:N // 2], X_filtered[:N // 2], linewidth=0.6)
+plt.xlim(0, max_freq)
+plt.ylim(spectrum_ylim)
+plt.title("FIR filtered ECG - frequency domain")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("|X(f)| (a.u.)")
+plt.tight_layout()
+plt.savefig("task3_spectrum.svg")
 plt.show()
